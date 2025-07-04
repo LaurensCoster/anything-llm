@@ -17,18 +17,22 @@ const { WorkspaceThread } = require("../models/workspaceThread");
 const { User } = require("../models/user");
 const truncate = require("truncate");
 const { getModelTag } = require("./utils");
+const metabolicSearchMiddleware = require("../utils/rag/search");
 
 function chatEndpoints(app) {
   if (!app) return;
 
   app.post(
     "/workspace/:slug/stream-chat",
-    [validatedRequest, flexUserRoleValid([ROLES.all]), validWorkspaceSlug],
+    [validatedRequest, flexUserRoleValid([ROLES.all]), validWorkspaceSlug, metabolicSearchMiddleware],
     async (request, response) => {
       try {
         const user = await userFromSession(request, response);
         const { message, attachments = [] } = reqBody(request);
         const workspace = response.locals.workspace;
+        const ragResults = request.ragResults;
+        const messageWithGrounding = `Grounding data: ${ragResults} \n\n User message: ${message}`;
+        console.log("messageWithGrounding", messageWithGrounding);
 
         if (!message?.length) {
           response.status(400).json({
@@ -41,6 +45,8 @@ function chatEndpoints(app) {
           });
           return;
         }
+
+        console.log("asdasdasd", "dsadasdadssad");
 
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Content-Type", "text/event-stream");
@@ -59,6 +65,8 @@ function chatEndpoints(app) {
           });
           return;
         }
+
+        console.log("message before grounding", message);
 
         await streamChatWithWorkspace(
           response,
