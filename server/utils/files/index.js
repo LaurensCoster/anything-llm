@@ -24,7 +24,8 @@ async function fileData(filePath = null) {
   return JSON.parse(data);
 }
 
-async function viewLocalFiles() {
+async function viewLocalFiles(user = null) {
+  console.log("viewLocalFiles", user);
   if (!fs.existsSync(documentsPath)) fs.mkdirSync(documentsPath);
   const liveSyncAvailable = await DocumentSyncQueue.enabled();
   const directory = {
@@ -63,7 +64,8 @@ async function viewLocalFiles() {
       }
       const results = await Promise.all(filePromises)
         .then((results) => results.filter((i) => !!i)) // Remove null results
-        .then((results) => results.filter((i) => hasRequiredMetadata(i))); // Remove invalid file structures
+        .then((results) => results.filter((i) => hasRequiredMetadata(i))) // Remove invalid file structures
+        .then((results) => filterFilesByUser(results, user)); // Remove files that were not uploaded by the user
       subdocs.items.push(...results);
 
       // Grab the pinned workspaces and watched documents for this folder's documents
@@ -432,6 +434,23 @@ async function fileToPickerData({
   };
 }
 
+function filterFilesByUser(files, user) {
+  if (!user) return files;
+  
+  // Creator and default users see only their own files  
+  if (["creator", "default"].includes(user.role)) {
+    return files.filter(file => {
+      if (!file.uploadedBy || file.uploadedBy === null || file.uploadedBy === undefined) {
+        return true;
+      }
+      // If there is uploadedBy - show only your own
+      return file.uploadedBy === user.id;
+    });
+  }
+  
+  return files;
+}
+
 const REQUIRED_FILE_OBJECT_FIELDS = [
   "name",
   "type",
@@ -471,4 +490,5 @@ module.exports = {
   hasVectorCachedFiles,
   purgeEntireVectorCache,
   getDocumentsByFolder,
+  filterFilesByUser,
 };

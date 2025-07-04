@@ -65,15 +65,19 @@ class CollectorApi {
    * Process a document
    * - Will append the options to the request body
    * @param {string} filename - The filename of the document to process
+   * @param {Object} metadata - The metadata to process
    * @returns {Promise<Object>} - The response from the collector API
    */
-  async processDocument(filename = "") {
+  async processDocument(filename = "", metadata = {}) {
     if (!filename) return false;
+    console.log("processDocument metadata", metadata);
 
     const data = JSON.stringify({
       filename,
+      metadata,
       options: this.#attachOptions(),
     });
+    console.log("processDocument data", data);
 
     return await fetch(`${this.endpoint}/process`, {
       method: "POST",

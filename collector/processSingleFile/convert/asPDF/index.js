@@ -9,7 +9,7 @@ const { default: slugify } = require("slugify");
 const PDFLoader = require("./PDFLoader");
 const OCRLoader = require("../../../utils/OCRLoader");
 
-async function asPdf({ fullFilePath = "", filename = "", options = {} }) {
+async function asPdf({ fullFilePath = "", filename = "", options = {}, metadata = {} }) {
   const pdfLoader = new PDFLoader(fullFilePath, {
     splitPages: true,
   });
@@ -61,10 +61,13 @@ async function asPdf({ fullFilePath = "", filename = "", options = {} }) {
     pageContent: content,
     token_count_estimate: tokenizeString(content),
   };
+  console.log("uploadedBy", metadata?.uploadedBy);
 
   const document = writeToServerDocuments(
     data,
-    `${slugify(filename)}-${data.id}`
+    `${slugify(filename)}-${data.id}`,
+    null,
+    metadata?.uploadedBy,
   );
   trashFile(fullFilePath);
   console.log(`[SUCCESS]: ${filename} converted & ready for embedding.\n`);

@@ -12,7 +12,7 @@ const {
 } = require("../utils/files");
 const RESERVED_FILES = ["__HOTDIR__.md"];
 
-async function processSingleFile(targetFilename, options = {}) {
+async function processSingleFile(targetFilename, metadata = {}, options = {}) {
   const fullFilePath = path.resolve(
     WATCH_DIRECTORY,
     normalizePath(targetFilename)
@@ -66,10 +66,16 @@ async function processSingleFile(targetFilename, options = {}) {
   const FileTypeProcessor = require(SUPPORTED_FILETYPE_CONVERTERS[
     processFileAs
   ]);
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+  console.log("metadata", metadata);
   return await FileTypeProcessor({
     fullFilePath,
     filename: targetFilename,
     options,
+    metadata,
   });
 }
 

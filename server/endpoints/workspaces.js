@@ -43,7 +43,7 @@ function workspaceEndpoints(app) {
 
   app.post(
     "/workspace/new",
-    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
+    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator])],
     async (request, response) => {
       try {
         const user = await userFromSession(request, response);
@@ -82,7 +82,7 @@ function workspaceEndpoints(app) {
 
   app.post(
     "/workspace/:slug/update",
-    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
+    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator])],
     async (request, response) => {
       try {
         const user = await userFromSession(request, response);
@@ -114,12 +114,13 @@ function workspaceEndpoints(app) {
     "/workspace/:slug/upload",
     [
       validatedRequest,
-      flexUserRoleValid([ROLES.admin, ROLES.manager]),
+      flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator]),
       handleFileUpload,
     ],
     async function (request, response) {
       try {
         const Collector = new CollectorApi();
+        const user = await userFromSession(request, response);
         const { originalname } = request.file;
         const processingOnline = await Collector.online();
 
@@ -133,9 +134,9 @@ function workspaceEndpoints(app) {
             .end();
           return;
         }
-
+        console.log("api upload user", user);
         const { success, reason } =
-          await Collector.processDocument(originalname);
+          await Collector.processDocument(originalname, {uploadedBy: user?.id});
         if (!success) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
@@ -162,10 +163,11 @@ function workspaceEndpoints(app) {
 
   app.post(
     "/workspace/:slug/upload-link",
-    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
+    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator])],
     async (request, response) => {
       try {
         const Collector = new CollectorApi();
+        const user = await userFromSession(request, response);
         const { link = "" } = reqBody(request);
         const processingOnline = await Collector.online();
 
@@ -180,7 +182,7 @@ function workspaceEndpoints(app) {
           return;
         }
 
-        const { success, reason } = await Collector.processLink(link);
+        const { success, reason } = await Collector.processLink(link, {uploadedBy: user?.id});
         if (!success) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
@@ -205,7 +207,7 @@ function workspaceEndpoints(app) {
 
   app.post(
     "/workspace/:slug/update-embeddings",
-    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
+    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator])],
     async (request, response) => {
       try {
         const user = await userFromSession(request, response);
@@ -292,7 +294,7 @@ function workspaceEndpoints(app) {
 
   app.delete(
     "/workspace/:slug/reset-vector-db",
-    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
+    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator])],
     async (request, response) => {
       try {
         const { slug = "" } = request.params;
@@ -567,7 +569,7 @@ function workspaceEndpoints(app) {
     "/workspace/:slug/update-pin",
     [
       validatedRequest,
-      flexUserRoleValid([ROLES.admin, ROLES.manager]),
+      flexUserRoleValid([ROLES.admin, ROLES.manager, ROLES.creator]),
       validWorkspaceSlug,
     ],
     async (request, response) => {
@@ -906,7 +908,7 @@ function workspaceEndpoints(app) {
         }
 
         const { success, reason, documents } =
-          await Collector.processDocument(originalname);
+          await Collector.processDocument(originalname, {uploadedBy: user?.id});
         if (!success || documents?.length === 0) {
           response.status(500).json({ success: false, error: reason }).end();
           return;

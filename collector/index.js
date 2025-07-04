@@ -32,7 +32,7 @@ app.post(
   "/process",
   [verifyPayloadIntegrity],
   async function (request, response) {
-    const { filename, options = {} } = reqBody(request);
+    const { filename, metadata = {}, options = {} } = reqBody(request);
     try {
       const targetFilename = path
         .normalize(filename)
@@ -41,7 +41,7 @@ app.post(
         success,
         reason,
         documents = [],
-      } = await processSingleFile(targetFilename, options);
+      } = await processSingleFile(targetFilename, metadata, options);
       response
         .status(200)
         .json({ filename: targetFilename, success, reason, documents });

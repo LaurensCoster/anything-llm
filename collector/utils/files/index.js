@@ -99,7 +99,8 @@ function createdDate(filepath) {
 function writeToServerDocuments(
   data = {},
   filename,
-  destinationOverride = null
+  destinationOverride = null,
+  uploadedBy = null,
 ) {
   const destination = destinationOverride
     ? path.resolve(destinationOverride)
@@ -110,8 +111,9 @@ function writeToServerDocuments(
   if (!fs.existsSync(destination))
     fs.mkdirSync(destination, { recursive: true });
   const destinationFilePath = path.resolve(destination, filename) + ".json";
+  console.log("uploadedBy", uploadedBy);
 
-  fs.writeFileSync(destinationFilePath, JSON.stringify(data, null, 4), {
+  fs.writeFileSync(destinationFilePath, JSON.stringify({...data, uploadedBy}, null, 4), {
     encoding: "utf-8",
   });
 

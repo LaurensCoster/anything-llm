@@ -5,6 +5,7 @@ const ROLES = {
   admin: "admin",
   manager: "manager",
   default: "default",
+  creator: "creator",
 };
 const DEFAULT_ROLES = [ROLES.admin, ROLES.admin];
 
