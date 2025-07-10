@@ -24,6 +24,7 @@ function isNullOrNaN(value) {
  * @property {string} chatProvider - The chat provider of the workspace
  * @property {string} chatModel - The chat model of the workspace
  * @property {number} topN - The top N of the workspace
+ * @property {boolean} public - Whether the workspace is public
  * @property {string} chatMode - The chat mode of the workspace
  * @property {string} agentProvider - The agent provider of the workspace
  * @property {string} agentModel - The agent model of the workspace
@@ -50,6 +51,7 @@ const Workspace = {
     "chatModel",
     "topN",
     "chatMode",
+    "public",
     // "pfpFilename",
     "agentProvider",
     "agentModel",
@@ -128,6 +130,10 @@ const Workspace = {
       )
         return "default";
       return value;
+    },
+    public: (value) => {
+      if (value === null || value === undefined) return false;
+      return Boolean(value);
     },
   },
 
@@ -266,11 +272,20 @@ const Workspace = {
       const workspace = await prisma.workspaces.findFirst({
         where: {
           ...clause,
-          workspace_users: {
-            some: {
-              user_id: user?.id,
+          OR: [
+            // Workspace'y do których użytkownik ma dostęp przez workspace_users
+            {
+              workspace_users: {
+                some: {
+                  user_id: user?.id,
+                },
+              },
             },
-          },
+            // LUB workspace'y które są publiczne
+            {
+              public: true,
+            },
+          ],
         },
         include: {
           workspace_users: true,
@@ -345,11 +360,18 @@ const Workspace = {
       const workspaces = await prisma.workspaces.findMany({
         where: {
           ...clause,
-          workspace_users: {
-            some: {
-              user_id: user.id,
+          OR: [
+            {
+              workspace_users: {
+                some: {
+                  user_id: user.id,
+                },
+              },
             },
-          },
+            {
+              public: true,
+            },
+          ],
         },
         ...(limit !== null ? { take: limit } : {}),
         ...(orderBy !== null ? { orderBy } : {}),

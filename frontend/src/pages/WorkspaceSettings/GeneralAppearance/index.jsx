@@ -7,6 +7,7 @@ import SuggestedChatMessages from "./SuggestedChatMessages";
 import DeleteWorkspace from "./DeleteWorkspace";
 import WorkspacePfp from "./WorkspacePfp";
 import CTAButton from "@/components/lib/CTAButton";
+import PublicWorkspace from "./PublicWorkspace";
 
 export default function GeneralInfo({ slug }) {
   const [workspace, setWorkspace] = useState(null);
@@ -63,6 +64,7 @@ export default function GeneralInfo({ slug }) {
           workspace={workspace}
           setHasChanges={setHasChanges}
         />
+        <PublicWorkspace workspace={workspace} setHasChanges={setHasChanges} />
       </form>
       <SuggestedChatMessages slug={workspace.slug} />
       <WorkspacePfp workspace={workspace} slug={slug} />
