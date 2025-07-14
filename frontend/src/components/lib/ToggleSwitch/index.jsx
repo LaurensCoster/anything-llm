@@ -27,6 +27,7 @@ export default function ToggleSwitch({
           <input
             name={name}
             type="checkbox"
+            readOnly
             onClick={handleToggle}
             checked={enabled}
             disabled={disabled}

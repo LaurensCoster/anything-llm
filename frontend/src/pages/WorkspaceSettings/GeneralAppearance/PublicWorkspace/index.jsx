@@ -22,10 +22,11 @@ export default function PublicWorkspace({ workspace, setHasChanges }) {
         </div>
 
         <div className="bg-theme-bg-secondary rounded-lg p-4">
+          {/* Hidden input to ensure 'public' field is always sent in form data */}
+          <input type="hidden" name="public" value={isPublic ? "true" : ""} />
           <ToggleSwitch
             enabled={isPublic}
             onToggle={handleToggle}
-            name="public"
             label="Public Workspace"
             description="When enabled, all users will be able to view and access this workspace, even if they haven't been explicitly added to it."
           />
