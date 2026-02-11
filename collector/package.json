@@ -15,7 +15,7 @@
     "lint": "yarn prettier --ignore-path ../.prettierignore --write ./processSingleFile ./processLink ./utils index.js"
   },
   "dependencies": {
-    "@langchain/community": "^0.2.23",
+    "@langchain/community": "^1.1.14",
     "@xenova/transformers": "^2.14.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
